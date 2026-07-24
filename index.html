@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>jogotisDUMB</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    body {
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      padding: 20px;
+    }
+
+    #letter-container {
+      max-width: 560px;
+      width: 100%;
+      background: #111111;
+      padding: 28px 20px 32px;
+      border-radius: 20px;
+      border: 2px solid #2a2a2a;
+      box-shadow: 0 8px 0 #050505, 0 20px 40px rgba(0,0,0,0.9);
+    }
+
+    .letter-window {
+      background: #0d0d0d;
+      border-radius: 16px;
+      padding: 24px 16px 26px;
+      border: 2px solid #222222;
+    }
+
+    #letter-title {
+      font-size: 18px;
+      text-align: center;
+      color: #e0d6b0;
+      text-shadow: 2px 2px 0 #1a1a1a;
+      line-height: 1.8;
+      padding: 0 4px 12px;
+      word-break: break-word;
+      min-height: 70px;
+      letter-spacing: 1px;
+    }
+
+    #letter-icon {
+      text-align: center;
+      font-size: 32px;
+      padding: 4px 0 2px;
+      filter: drop-shadow(2px 4px 0 #0a0a0a);
+      letter-spacing: 4px;
+      cursor: default;
+      transition: 0.1s;
+      opacity: 0.4;
+    }
+
+    .quiz-area {
+      margin: 10px 0 8px;
+      padding: 4px 2px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+
+    .opt-btn {
+      background: #1a1a1a;
+      border: 2px solid #333333;
+      border-radius: 12px;
+      padding: 12px 8px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px;
+      color: #c0b89a;
+      text-shadow: 1px 1px 0 #0a0a0a;
+      box-shadow: 0 4px 0 #0a0a0a;
+      cursor: pointer;
+      transition: all 0.05s linear;
+      text-align: center;
+      word-break: break-word;
+      line-height: 1.5;
+      letter-spacing: 0.5px;
+    }
+
+    .opt-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #0a0a0a;
+    }
+
+    .opt-btn:hover:not(:disabled) {
+      background: #262626;
+      border-color: #444444;
+    }
+
+    .opt-btn.correct {
+      background: #2a4a2a;
+      border-color: #4a7a4a;
+      color: #b0d8b0;
+      text-shadow: 1px 1px 0 #1a2a1a;
+    }
+
+    .opt-btn.wrong {
+      background: #4a2a2a;
+      border-color: #7a4a4a;
+      color: #d8b0b0;
+      text-shadow: 1px 1px 0 #2a1a1a;
+    }
+
+    .opt-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: translateY(2px);
+    }
+
+    .q-counter {
+      color: #555555;
+      font-size: 11px;
+      text-align: center;
+      padding: 6px 0;
+      text-shadow: 1px 1px 0 #0a0a0a;
+      letter-spacing: 1px;
+    }
+
+    .btn {
+      background: #222222;
+      border: 2px solid #3a3a3a;
+      border-radius: 14px;
+      padding: 14px 20px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 15px;
+      color: #b0a880;
+      box-shadow: 0 6px 0 #0a0a0a;
+      transition: all 0.05s linear;
+      cursor: pointer;
+      text-shadow: 1px 1px 0 #0a0a0a;
+      letter-spacing: 1.5px;
+      width: 100%;
+      text-align: center;
+      background: #1a1a1a;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #0a0a0a;
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      transform: translateY(3px);
+      box-shadow: 0 3px 0 #0a0a0a;
+      cursor: not-allowed;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #262626;
+      border-color: #4a4a4a;
+    }
+
+    .final-text {
+      font-size: 15px;
+      color: #d0c8b0;
+      text-shadow: 2px 2px 0 #0a0a0a;
+      background: #0d0d0d;
+      padding: 20px 14px;
+      border-radius: 16px;
+      border: 2px solid #2a2a2a;
+      margin: 14px 0 4px;
+      text-align: center;
+      display: none;
+      line-height: 2;
+      max-height: 650px;
+      overflow-y: auto;
+    }
+
+    .final-text.show {
+      display: block;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .final-text .credit {
+      display: block;
+      margin-top: 14px;
+      font-size: 11px;
+      color: #666666;
+      text-shadow: 1px 1px 0 #0a0a0a;
+      letter-spacing: 1px;
+    }
+
+    /* PHOTO SLIDER */
+    .slider-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin: 12px auto 8px;
+      border: 2px solid #333333;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0a0a0a;
+    }
+
+    .slider-wrapper {
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+
+    .slide {
+      min-width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .slide img {
+      width: 100%;
+      height: auto;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    .slider-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.7);
+      color: #c0b89a;
+      border: 1px solid #444444;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      cursor: pointer;
+      z-index: 10;
+      transition: 0.2s;
+      text-shadow: 1px 1px 0 #0a0a0a;
+    }
+
+    .slider-btn:hover {
+      background: rgba(30,30,30,0.9);
+      border-color: #666666;
+    }
+
+    .slider-btn.prev {
+      left: 6px;
+    }
+
+    .slider-btn.next {
+      right: 6px;
+    }
+
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 0 4px;
+      flex-wrap: wrap;
+    }
+
+    .slider-dots .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #333333;
+      border: 1px solid #444444;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .slider-dots .dot.active {
+      background: #888888;
+      border-color: #aaaaaa;
+    }
+
+    .slider-counter {
+      color: #555555;
+      font-size: 10px;
+      text-align: center;
+      padding: 2px 0 6px;
+      letter-spacing: 1px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 18px;
+      color: #444444;
+      font-size: 11px;
+      text-shadow: 1px 1px 0 #0a0a0a;
+      letter-spacing: 1px;
+      padding: 4px 0;
+      border-top: 1px solid #1a1a1a;
+      padding-top: 14px;
+    }
+
+    .footer span {
+      color: #555555;
+    }
+
+    .spark-burst {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+      animation: sparkBurst 1.2s ease-out forwards;
+    }
+
+    @keyframes sparkBurst {
+      0% { background: radial-gradient(circle, rgba(200,180,120,0.12) 0%, transparent 70%); opacity: 1; }
+      100% { background: radial-gradient(circle, rgba(200,180,120,0) 0%, transparent 100%); opacity: 0; }
+    }
+
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .popup-overlay.show {
+      display: flex;
+    }
+
+    .popup-box {
+      background: #111111;
+      border: 2px solid #333333;
+      border-radius: 20px;
+      padding: 40px 30px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      animation: popIn 0.4s ease;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .popup-box h2 {
+      color: #c8b080;
+      font-size: 16px;
+      line-height: 1.8;
+      text-shadow: 2px 2px 0 #0a0a0a;
+      margin-bottom: 16px;
+    }
+
+    .popup-box .popup-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .popup-box .popup-btn {
+      background: #1a1a1a;
+      border: 2px solid #3a3a3a;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      color: #b0a880;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #0a0a0a;
+      transition: 0.05s linear;
+      margin-top: 10px;
+    }
+
+    .popup-box .popup-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #0a0a0a;
+    }
+
+    .popup-box .popup-btn:hover {
+      background: #262626;
+      border-color: #4a4a4a;
+    }
+
+    @media (max-width: 480px) {
+      #letter-title { font-size: 14px; }
+      .opt-btn { font-size: 10px; padding: 10px 6px; }
+      .btn { font-size: 13px; padding: 12px 14px; }
+      .final-text { font-size: 13px; padding: 16px 12px; }
+      .options-grid { gap: 5px; }
+      .popup-box { padding: 30px 20px; }
+      .popup-box h2 { font-size: 14px; }
+      .slider-btn { padding: 6px 10px; font-size: 11px; }
+    }
+
+    .final-text::-webkit-scrollbar {
+      width: 4px;
+    }
+    .final-text::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+    .final-text::-webkit-scrollbar-thumb {
+      background: #333333;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="letter-container">
+  <div class="letter-window">
+
+    <div id="letter-icon">◆</div>
+
+    <h1 id="letter-title">Do you know what day is today?</h1>
+
+    <div class="quiz-area" id="quizArea">
+      <div class="options-grid" id="optionsContainer">
+        <button class="opt-btn" data-value="yes">YES</button>
+        <button class="opt-btn" data-value="no">NO</button>
+      </div>
+      <div class="q-counter" id="qCounter">Question 1 of 4</div>
+    </div>
+
+    <button class="btn" id="nextBtn" disabled>Next →</button>
+
+    <div id="finalText" class="final-text">
+      Sorry, bhai,Ami jani ami tore onk beshi e pera dei majhe majhe im so sorry for that, ashole life ta amar onk kharap choltese tai recently ektu beshi e reactive hoye gesi im sorry but bhai do you know what is the good part of it? ami amar life e tor moto ekta friend paisi im so lucky je tui amar twin like i've never expected that much from my life but still life er plan ta onk different. Idk what to say, and it's your birthday, so I was confused, and I'm really sorry for all of these troubles that you've faced for me .<br><br>
+      And bhai, you're the nicest person that I've met in my life. Thanks for being the person who I trust without even thinking, and you're the most reliable person in my life.<br><br>
+      If someone say to me, "What is the most beautiful thing that you've experienced in your life?" I'll say that was you. You're really cool and amazing. Thanks for everything and being such a nice friend.<br><br>
+      You're growing up. Let's celebrate this one. Idk what will happen next, but we gotta appreciate little things in our life and accept what life throws at us.You're very special in my life and after that random text in discord I learned a lot of things about me and my perspective to the entire world changed for you, like ami age bhabtam sobai mean and life e ashole bhalo bolte kichu hoy na but that was a bs life ta asholei shundor just perspective ta ektu change kora lagbe rki. Life e ups n down ashbe eita obvious but amader make sure jorte hobe jate amra amader life ta limited na kore feli. No age with grace we need to live it full. Bhai tui asholei joss ik we're just friend via online we've never meet in person still we know amara kmn so without any doubt i can say you're great! Again.<br><br>
+      HBD, GIRL🩶🎈✨!!<br><br>
+
+      <!-- PHOTO SLIDER - 7 PHOTOS TOTAL (1 Birthday + 6 Additional) -->
+      <div class="slider-container" id="sliderContainer">
+        <div class="slider-wrapper" id="sliderWrapper">
+          <!-- SLIDE 1: Birthday Image -->
+          <div class="slide">
+            <img src="Gemini_Generated_Image_l8by74l8by74l8by.png" alt="Happy Birthday Pinkiee" onerror="this.style.display='none'">
+          </div>
+          <!-- SLIDE 2: Photo 1 -->
+          <div class="slide">
+            <img src="10351621817_128736949265057_1784652184992.png" alt="Photo 1" onerror="this.style.display='none'">
+          </div>
+          <!-- SLIDE 3: Photo 2 -->
+          <div class="slide">
+            <img src="10351621817_128736949265057_1784658215559.png" alt="Photo 2" onerror="this.style.display='none'">
+          </div>
+          <!-- SLIDE 4: Photo 3 -->
+          <div class="slide">
+            <img src="RobloxScreenShot20260129_230133327.png" alt="Photo 3" onerror="this.style.display='none'">
+          </div>
+          <!-- SLIDE 5: Photo 4 -->
+          <div class="slide">
+            <img src="RobloxScreenShot20260214_144646045.png" alt="Photo 4" onerror="this.style.display='none'">
+          </div>
+          <!-- SLIDE 6: Photo 5 -->
+          <div class="slide">
+            <img src="RobloxScreenShot20260228_153442381.png" alt="Photo 5" onerror="this.style.display='none'">
+          </div>
+          <!-- SLIDE 7: Photo 6 -->
+          <div class="slide">
+            <img src="RobloxScreenShot20260620_225350288.png" alt="Photo 6" onerror="this.style.display='none'">
+          </div>
+        </div>
+        <button class="slider-btn prev" id="prevBtn">◀</button>
+        <button class="slider-btn next" id="nextBtnSlider">▶</button>
+        <div class="slider-dots" id="sliderDots"></div>
+        <div class="slider-counter" id="sliderCounter">1 / 7</div>
+      </div>
+
+      <span class="credit">made by Jesse Pinkman</span>
+    </div>
+
+    <div class="footer">
+      <span>JogotisDUMBass</span>
+    </div>
+
+    <audio id="bgMusic" loop preload="auto">
+      <source src="Dream, Ivory - Making Faces.mp3" type="audio/mpeg">
+    </audio>
+
+  </div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box">
+    <span class="popup-icon">🍃</span>
+    <h2>You don't deserve the greatness of king FlyRox</h2>
+    <button class="popup-btn" id="popupBtn">okay</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const questions = [
+      {
+        question: 'Do you know what day is today?',
+        options: ['YES', 'NO'],
+        correct: 'YES',
+        type: 'first'
+      },
+      {
+        question: 'Which one\'s your fav song?',
+        options: ['Chad Tara', 'Purnota', 'Anmone', 'Bibhor'],
+        correct: 'Chad Tara',
+        type: 'mcq'
+      },
+      {
+        question: 'What are your favorite games on Roblox?',
+        options: ['Adopt Me', 'Grow a Garden', 'Brookhaven', 'Blox Fruits'],
+        correct: 'Grow a Garden',
+        type: 'mcq'
+      },
+      {
+        question: 'What is the most beautiful name in the world?',
+        options: ['Pinky Sissy', 'Labubu', 'WifiPrincess', 'angelSamiha'],
+        correct: 'Pinky Sissy',
+        type: 'mcq'
+      }
+    ];
+
+    const title = document.getElementById('letter-title');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const qCounter = document.getElementById('qCounter');
+    const nextBtn = document.getElementById('nextBtn');
+    const finalText = document.getElementById('finalText');
+    const bgMusic = document.getElementById('bgMusic');
+    const icon = document.getElementById('letter-icon');
+    const quizArea = document.getElementById('quizArea');
+    const popupOverlay = document.getElementById('popupOverlay');
+    const popupBtn = document.getElementById('popupBtn');
+
+    // Slider variables
+    const sliderWrapper = document.getElementById('sliderWrapper');
+    const prevBtnSlider = document.getElementById('prevBtn');
+    const nextBtnSlider = document.getElementById('nextBtnSlider');
+    const dotsContainer = document.getElementById('sliderDots');
+    const counterDisplay = document.getElementById('sliderCounter');
+    let currentSlide = 0;
+    let totalSlides = 0;
+
+    let currentQ = 0;
+    let quizCompleted = false;
+    let waitingForNext = false;
+    let firstWrongDone = false;
+    let firstQCorrect = false;
+    let noPressCount = 0;
+    let mistakeCount = 0;
+    let musicStarted = false;
+    const maxMistakes = 1;
+
+    function initSlider() {
+      const slides = sliderWrapper.querySelectorAll('.slide');
+      totalSlides = slides.length;
+      if (totalSlides === 0) return;
+
+      // Update counter
+      counterDisplay.textContent = `1 / ${totalSlides}`;
+
+      // Create dots
+      dotsContainer.innerHTML = '';
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('span');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.dataset.index = i;
+        dot.addEventListener('click', () => goToSlide(i));
+        dotsContainer.appendChild(dot);
+      }
+
+      updateSlider();
+    }
+
+    function updateSlider() {
+      sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+      const dots = dotsContainer.querySelectorAll('.dot');
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentSlide);
+      });
+      counterDisplay.textContent = `${currentSlide + 1} / ${totalSlides}`;
+    }
+
+    function goToSlide(index) {
+      if (index < 0) index = totalSlides - 1;
+      if (index >= totalSlides) index = 0;
+      currentSlide = index;
+      updateSlider();
+    }
+
+    prevBtnSlider.addEventListener('click', () => goToSlide(currentSlide - 1));
+    nextBtnSlider.addEventListener('click', () => goToSlide(currentSlide + 1));
+
+    // Keyboard support for slider
+    document.addEventListener('keydown', (e) => {
+      if (!finalText.classList.contains('show')) return;
+      if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
+      if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
+    });
+
+    // Touch support for slider
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const sliderContainer = document.getElementById('sliderContainer');
+
+    sliderContainer.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    sliderContainer.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) goToSlide(currentSlide + 1);
+        else goToSlide(currentSlide - 1);
+      }
+    });
+
+    function renderQuestion(index) {
+      const q = questions[index];
+      if (!q) return;
+
+      title.textContent = q.question;
+      qCounter.textContent = `Question ${index + 1} of ${questions.length}`;
+
+      optionsContainer.innerHTML = '';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.textContent = opt;
+        btn.dataset.value = opt;
+        btn.addEventListener('click', () => handleOptionClick(btn, opt, index));
+        optionsContainer.appendChild(btn);
+      });
+
+      nextBtn.disabled = true;
+      waitingForNext = false;
+      firstWrongDone = false;
+      firstQCorrect = false;
+      mistakeCount = 0;
+      if (index === 0) {
+        noPressCount = 0;
+      }
+    }
+
+    function handleOptionClick(btn, selected, index) {
+      if (waitingForNext || quizCompleted) return;
+      
+      if (index === 0 && selected === 'NO') {
+        noPressCount++;
+        if (noPressCount >= 3) {
+          popupOverlay.classList.add('show');
+          document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+          waitingForNext = true;
+          return;
+        }
+      }
+
+      const q = questions[index];
+      const isCorrect = selected === q.correct;
+
+      document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+
+      if (isCorrect) {
+        document.querySelectorAll('.opt-btn').forEach(b => {
+          if (b.textContent === q.correct) b.classList.add('correct');
+        });
+      } else {
+        btn.classList.add('wrong');
+      }
+
+      if (index === 0) {
+        if (isCorrect) {
+          title.textContent = 'no you don\'t know dumb';
+          firstQCorrect = true;
+          setTimeout(() => {
+            title.textContent = 'okay fine... I\'ll give you a hint';
+            setTimeout(() => {
+              title.textContent = 'click YES one more time...';
+              document.querySelectorAll('.opt-btn').forEach(b => {
+                b.disabled = false;
+                b.classList.remove('correct', 'wrong');
+              });
+              firstWrongDone = true;
+              waitingForNext = false;
+            }, 1200);
+          }, 800);
+          waitingForNext = true;
+          return;
+        } else {
+          title.textContent = 'bruhh you\'re really brainless';
+          setTimeout(() => {
+            title.textContent = 'okay try again... do you know what day is today?';
+            document.querySelectorAll('.opt-btn').forEach(b => {
+              b.disabled = false;
+              b.classList.remove('correct', 'wrong');
+            });
+            waitingForNext = false;
+          }, 1800);
+          waitingForNext = true;
+          return;
+        }
+      }
+
+      if (isCorrect) {
+        nextBtn.disabled = false;
+        waitingForNext = false;
+      } else {
+        mistakeCount++;
+        if (mistakeCount >= maxMistakes + 1) {
+          nextBtn.disabled = true;
+          setTimeout(() => {
+            document.querySelectorAll('.opt-btn').forEach(b => {
+              b.disabled = false;
+              b.classList.remove('correct', 'wrong');
+            });
+            mistakeCount = 0;
+            waitingForNext = false;
+          }, 1500);
+          waitingForNext = true;
+        } else {
+          nextBtn.disabled = true;
+          setTimeout(() => {
+            document.querySelectorAll('.opt-btn').forEach(b => {
+              b.disabled = false;
+              b.classList.remove('correct', 'wrong');
+            });
+            waitingForNext = false;
+          }, 1200);
+          waitingForNext = true;
+        }
+      }
+    }
+
+    optionsContainer.addEventListener('click', function(e) {
+      const btn = e.target.closest('.opt-btn');
+      if (!btn) return;
+      if (currentQ !== 0) return;
+      if (firstWrongDone && firstQCorrect) {
+        const selected = btn.textContent;
+        if (selected === 'YES') {
+          title.textContent = 'I could say that you used the hint';
+          setTimeout(() => {
+            currentQ++;
+            if (currentQ < questions.length) {
+              renderQuestion(currentQ);
+            }
+          }, 1000);
+          document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+          firstWrongDone = false;
+          firstQCorrect = false;
+        } else {
+          title.textContent = 'bruhh you\'re really brainless';
+          setTimeout(() => {
+            title.textContent = 'okay try again... click YES this time';
+            document.querySelectorAll('.opt-btn').forEach(b => {
+              b.disabled = false;
+            });
+          }, 1500);
+        }
+      }
+    });
+
+    nextBtn.addEventListener('click', function() {
+      if (quizCompleted) return;
+      currentQ++;
+      if (currentQ < questions.length) {
+        renderQuestion(currentQ);
+        nextBtn.disabled = true;
+      } else {
+        showFinale();
+      }
+    });
+
+    function showFinale() {
+      quizCompleted = true;
+      
+      const spark = document.createElement('div');
+      spark.className = 'spark-burst';
+      document.body.appendChild(spark);
+      setTimeout(() => spark.remove(), 1200);
+
+      finalText.classList.add('show');
+      title.textContent = '◆';
+      icon.innerHTML = '◆';
+      quizArea.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      // Initialize slider after showing final text
+      setTimeout(initSlider, 300);
+
+      if (!musicStarted) {
+        bgMusic.play().catch(() => {});
+        musicStarted = true;
+      }
+    }
+
+    popupBtn.addEventListener('click', function() {
+      popupOverlay.classList.remove('show');
+      document.querySelectorAll('.opt-btn').forEach(b => {
+        b.disabled = false;
+        b.classList.remove('correct', 'wrong');
+      });
+      waitingForNext = false;
+      noPressCount = 0;
+      title.textContent = 'Do you know what day is today?';
+    });
+
+    icon.addEventListener('click', function() {
+      this.style.transition = '0.08s';
+      this.style.transform = 'scale(1.2)';
+      setTimeout(() => { this.style.transform = 'scale(1)'; }, 150);
+    });
+
+    renderQuestion(0);
+  })();
+</script>
+
+</body>
+</html>
